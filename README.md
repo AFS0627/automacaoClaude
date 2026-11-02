@@ -1,30 +1,52 @@
 # Claude Automation
 
-Automação desenvolvida em **Node.js, TypeScript e Playwright** para monitorar o botão **Continuar** no site [Claude.ai](https://claude.ai).
+Automação desenvolvida em **Node.js, TypeScript e Playwright** para gerenciar uma fila de prompts no [Claude.ai](https://claude.ai).
 
-O programa verifica periodicamente se o botão está habilitado e, quando fica disponível, realiza o clique automaticamente.
+O programa monitora o limite de mensagens, aguarda sua liberação e envia automaticamente os prompts configurados, um por vez, aguardando a conclusão de cada resposta.
 
-## Tecnologias utilizadas
+## Tecnologias
 
 - Node.js
 - TypeScript
 - Playwright
-- Chromium / Google Chrome
+- Google Chrome
+- PowerShell
 
 ## Funcionalidades
 
-- Monitoramento automático do botão Continuar.
-- Verificação a cada 1 minuto.
-- Clique automático quando o botão estiver habilitado.
-- Opção de continuar monitorando após o clique.
-- Tecla `Q` para encerrar o programa a qualquer momento.
-- Integração com uma sessão existente do Google Chrome.
+- Envio automático de uma fila de prompts.
+- Configuração da quantidade e do conteúdo dos prompts pelo PowerShell.
+- Leitura de filas por arquivos TXT ou JSON.
+- Detecção da janela de limite atingido.
+- Clique automático em **Agora não**.
+- Monitoramento do botão **Continuar**.
+- Envio automático após a liberação do limite.
+- Espera pela conclusão de cada resposta antes de enviar o próximo prompt.
+- Salvamento do progresso da fila em arquivo JSON.
+- Retomada de filas interrompidas.
+- Encerramento a qualquer momento com `Q` ou `Ctrl+C`.
 
 ## Requisitos
 
 - Node.js instalado.
 - Google Chrome instalado.
-- Dependências do projeto instaladas.
+- npm instalado.
+
+## Instalação
+
+Clone o repositório e entre na pasta do projeto:
+
+```bash
+git clone URL_DO_REPOSITORIO
+cd automacaoClaude
+```
+
+Instale as dependências:
+
+```bash
+npm install
+npx playwright install chromium
+```
 
 ## Como executar
 
@@ -32,64 +54,71 @@ Os arquivos PowerShell estão localizados na raiz do projeto.
 
 ### 1. Abrir o Chrome
 
-Execute o arquivo:
+Execute:
 
 ```powershell
 .\abrir-chrome.ps1
 ```
 
-Esse script inicia o Google Chrome com a porta de depuração remota habilitada, permitindo que o Playwright se conecte ao navegador.
+O script inicia o Google Chrome com a depuração remota habilitada na porta `9222`.
 
-Na primeira execução, faça login no Claude normalmente.
+Faça login no Claude normalmente, caso ainda não esteja autenticado.
 
-**Importante:** mantenha essa janela do Chrome aberta enquanto o programa estiver funcionando.
+**Mantenha essa janela do Chrome aberta durante toda a execução.**
 
-### 2. Abrir o programa
+### Abrir programa
 
-Execute o arquivo:
+Execute:
 
 ```powershell
 .\abrir-programa.ps1
 ```
 
-Esse script inicia a automação.
 
-Caso seja a primeira execução ou as dependências ainda não estejam instaladas, execute:
+## Funcionamento do monitoramento
 
-```bash
-npm install
-```
+1. O programa verifica se o limite de mensagens foi atingido.
+2. Se houver uma janela de upgrade, clica em **Agora não**.
+3. Aguarda até o botão **Continuar** ficar habilitado.
+4. Clica em **Continuar** quando disponível.
+5. Envia o próximo prompt da fila.
+6. Aguarda a conclusão da resposta.
+7. Continua até terminar todos os prompts.
 
-Também é possível iniciar diretamente pelo terminal:
+Se o limite acabar durante a execução, o programa aguarda a liberação e retoma o processamento.
 
-```bash
-npm start
-```
 
 ## Controles
 
 | Tecla | Ação |
 |---|---|
-| `S` | Continuar monitorando após um clique |
-| `N` | Encerrar após um clique |
-| `Q` | Encerrar imediatamente |
+| `Q` | Encerra a automação |
+| `Ctrl+C` | Encerra a automação |
 
-## Intervalo de verificação
+## Variáveis de ambiente
 
-O programa verifica a disponibilidade do botão a cada **60 segundos**.
+É possível personalizar algumas configurações:
 
-Quando o botão Continuar fica habilitado, o programa realiza o clique e pergunta se deseja continuar monitorando.
+| Variável | Padrão | Descrição |
+|---|---|---|
+| `DEBUG_URL` | `http://127.0.0.1:9222` | Endereço de depuração do Chrome |
+| `INTERVALO` | `60000` | Intervalo de verificação do limite, em milissegundos |
+| `TIMEOUT_PROMPT` | `600000` | Tempo máximo de espera por resposta, em milissegundos |
+| `FILA` | `fila.txt` | Arquivo de fila utilizado por padrão |
 
+Exemplo no PowerShell:
 
-## Instalação das dependências
-
-Para instalar as dependências novamente após clonar o repositório:
-
-```bash
-npm install
-npx playwright install chromium
+```powershell
+$env:INTERVALO = "30000"
+$env:TIMEOUT_PROMPT = "900000"
+npm start
 ```
 
-## Licença
 
-Projeto desenvolvido para fins de estudo e automação pessoal.
+## Observações
+
+A automação depende dos elementos da interface do Claude, como o botão **Continuar**, o botão **Agora não**, o editor de mensagens e o indicador de geração.
+
+Alterações na interface do Claude podem exigir ajustes nos seletores utilizados pelo Playwright.
+
+Este projeto foi desenvolvido para fins de estudo e automação pessoal.
