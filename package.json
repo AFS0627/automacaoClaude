@@ -1,0 +1,27 @@
+{
+  "name": "automacaoclaude",
+  "version": "1.0.0",
+  "description": "automação simples que clica em continuar na verção gratuita do claude",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AFS0627/automacaoClaude.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/AFS0627/automacaoClaude/issues"
+  },
+  "homepage": "https://github.com/AFS0627/automacaoClaude#readme",
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "playwright": "^1.64.1",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  }
+}
